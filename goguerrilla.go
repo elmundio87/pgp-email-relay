@@ -507,50 +507,6 @@ func saveMail() {
 
 		sendEmail(body)
 
-		// length = len(client.data)
-		// client.subject = mimeHeaderDecode(client.subject)
-		// client.hash = md5hex(to + client.mail_from + client.subject + strconv.FormatInt(time.Now().UnixNano(), 10))
-		// // Add extra headers
-		// add_head := ""
-		// add_head += "Delivered-To: " + to + "\r\n"
-		// add_head += "Received: from " + client.helo + " (" + client.helo + "  [" + client.address + "])\r\n"
-		// add_head += "	by " + gConfig["GSMTP_HOST_NAME"] + " with SMTP id " + client.hash + "@" +
-		// 	gConfig["GSMTP_HOST_NAME"] + ";\r\n"
-		// add_head += "	" + time.Now().Format(time.RFC1123Z) + "\r\n"
-		// // compress to save space
-		// client.data = compress(add_head + client.data)
-		// body = "gzencode"
-		// redis_err = redis.redisConnection()
-		// if redis_err == nil {
-		// 	_, do_err := redis.conn.Do("SETEX", client.hash, 3600, client.data)
-		// 	if do_err == nil {
-		// 		client.data = ""
-		// 		body = "redis"
-		// 	}
-		// } else {
-		// 	logln(1, fmt.Sprintf("redis: %v", redis_err))
-		// }
-		// // bind data to cursor
-		// ins.Bind(
-		// 	to,
-		// 	client.mail_from,
-		// 	client.subject,
-		// 	body,
-		// 	client.data,
-		// 	client.hash,
-		// 	to,
-		// 	client.address)
-		// // save, discard result
-		//_, _, err = ins.Exec()
-		// if err != nil {
-		// 	logln(1, fmt.Sprintf("Database error, %v %v", err))
-		// 	client.savedNotify <- -1
-		// } else {
-		// 	logln(1, "Email saved "+client.hash+" len:"+strconv.Itoa(length))
-		// 	_, _, err = incr.Exec()
-		// 	if err != nil {
-		// 		logln(1, fmt.Sprintf("Failed to incr count:", err))
-
 		client.savedNotify <- 1
 	}
 
