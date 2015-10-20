@@ -1,4 +1,4 @@
-/** 
+/**
 Go-Guerrilla SMTPd
 A minimalist SMTP server written in Go, made for receiving large volumes of mail.
 Works either as a stand-alone or in conjunction with Nginx SMTP proxy.
@@ -45,7 +45,7 @@ $ go get github.com/ziutek/mymysql/autorc
 $ go get github.com/ziutek/mymysql/godrv
 $ go get github.com/sloonz/go-iconv
 
-TODO: after failing tls, 
+TODO: after failing tls,
 
 patch:
 rebuild all: go build -a -v new.go
@@ -70,8 +70,8 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/sloonz/go-iconv"
 	"github.com/sloonz/go-qprintable"
-	"github.com/ziutek/mymysql/autorc"
-	_ "github.com/ziutek/mymysql/godrv"
+	//	"github.com/ziutek/mymysql/autorc"
+	//	_ "github.com/ziutek/mymysql/godrv"
 	"io"
 	"io/ioutil"
 	"log"
@@ -469,85 +469,80 @@ func responseWrite(client *Client) (err error) {
 }
 
 func saveMail() {
-	var to string
-	var err error
-	var body string
-	var redis_err error
-	var length int
-	redis := &redisClient{}
-	db := autorc.New("tcp", "", gConfig["MYSQL_HOST"], gConfig["MYSQL_USER"], gConfig["MYSQL_PASS"], gConfig["MYSQL_DB"])
-	db.Register("set names utf8")
-	sql := "INSERT INTO " + gConfig["GM_MAIL_TABLE"] + " "
-	sql += "(`date`, `to`, `from`, `subject`, `body`, `charset`, `mail`, `spam_score`, `hash`, `content_type`, `recipient`, `has_attach`, `ip_addr`)"
-	sql += " values (NOW(), ?, ?, ?, ? , 'UTF-8' , ?, 0, ?, '', ?, 0, ?)"
-	ins, sql_err := db.Prepare(sql)
-	if sql_err != nil {
-		logln(2, fmt.Sprintf("Sql statement incorrect: %s", sql_err))
-	}
-	sql = "UPDATE gm2_setting SET `setting_value` = `setting_value`+1 WHERE `setting_name`='received_emails' LIMIT 1"
-	incr, sql_err := db.Prepare(sql)
-	if sql_err != nil {
-		logln(2, fmt.Sprintf("Sql statement incorrect: %s", sql_err))
-	}
+	//var to string
+	//var err error
+	//var body string
+	//var redis_err error
+	//var length int
+	//redis := &redisClient{}
+	// //db := autorc.New("tcp", "", gConfig["MYSQL_HOST"], gConfig["MYSQL_USER"], gConfig["MYSQL_PASS"], gConfig["MYSQL_DB"])
+	// //db.Register("set names utf8")
+	// sql := "INSERT INTO " + gConfig["GM_MAIL_TABLE"] + " "
+	// sql += "(`date`, `to`, `from`, `subject`, `body`, `charset`, `mail`, `spam_score`, `hash`, `content_type`, `recipient`, `has_attach`, `ip_addr`)"
+	// sql += " values (NOW(), ?, ?, ?, ? , 'UTF-8' , ?, 0, ?, '', ?, 0, ?)"
+	// ins, sql_err := db.Prepare(sql)
+	// if sql_err != nil {
+	// 	logln(2, fmt.Sprintf("Sql statement incorrect: %s", sql_err))
+	// }
+	// sql = "UPDATE gm2_setting SET `setting_value` = `setting_value`+1 WHERE `setting_name`='received_emails' LIMIT 1"
+	// incr, sql_err := db.Prepare(sql)
+	// if sql_err != nil {
+	// 	logln(2, fmt.Sprintf("Sql statement incorrect: %s", sql_err))
+	// }
 
 	//  receives values from the channel repeatedly until it is closed.
 	for {
 		client := <-SaveMailChan
-		if user, _, addr_err := validateEmailData(client); addr_err != nil { // user, host, addr_err
-			logln(1, fmt.Sprintln("mail_from didnt validate: %v", addr_err)+" client.mail_from:"+client.mail_from)
-			// notify client that a save completed, -1 = error
-			client.savedNotify <- -1
-			continue
-		} else {
-			to = user + "@" + gConfig["GM_PRIMARY_MAIL_HOST"]
-		}
-		length = len(client.data)
-		client.subject = mimeHeaderDecode(client.subject)
-		client.hash = md5hex(to + client.mail_from + client.subject + strconv.FormatInt(time.Now().UnixNano(), 10))
-		// Add extra headers
-		add_head := ""
-		add_head += "Delivered-To: " + to + "\r\n"
-		add_head += "Received: from " + client.helo + " (" + client.helo + "  [" + client.address + "])\r\n"
-		add_head += "	by " + gConfig["GSMTP_HOST_NAME"] + " with SMTP id " + client.hash + "@" +
-			gConfig["GSMTP_HOST_NAME"] + ";\r\n"
-		add_head += "	" + time.Now().Format(time.RFC1123Z) + "\r\n"
-		// compress to save space
-		client.data = compress(add_head + client.data)
-		body = "gzencode"
-		redis_err = redis.redisConnection()
-		if redis_err == nil {
-			_, do_err := redis.conn.Do("SETEX", client.hash, 3600, client.data)
-			if do_err == nil {
-				client.data = ""
-				body = "redis"
-			}
-		} else {
-			logln(1, fmt.Sprintf("redis: %v", redis_err))
-		}
-		// bind data to cursor
-		ins.Bind(
-			to,
-			client.mail_from,
-			client.subject,
-			body,
-			client.data,
-			client.hash,
-			to,
-			client.address)
-		// save, discard result
-		_, _, err = ins.Exec()
-		if err != nil {
-			logln(1, fmt.Sprintf("Database error, %v %v", err))
-			client.savedNotify <- -1
-		} else {
-			logln(1, "Email saved "+client.hash+" len:"+strconv.Itoa(length))
-			_, _, err = incr.Exec()
-			if err != nil {
-				logln(1, fmt.Sprintf("Failed to incr count:", err))
-			}
-			client.savedNotify <- 1
-		}
+
+		fmt.Println(client.rcpt_to, client.mail_from, mimeHeaderDecode(client.subject), client.data)
+
+		// length = len(client.data)
+		// client.subject = mimeHeaderDecode(client.subject)
+		// client.hash = md5hex(to + client.mail_from + client.subject + strconv.FormatInt(time.Now().UnixNano(), 10))
+		// // Add extra headers
+		// add_head := ""
+		// add_head += "Delivered-To: " + to + "\r\n"
+		// add_head += "Received: from " + client.helo + " (" + client.helo + "  [" + client.address + "])\r\n"
+		// add_head += "	by " + gConfig["GSMTP_HOST_NAME"] + " with SMTP id " + client.hash + "@" +
+		// 	gConfig["GSMTP_HOST_NAME"] + ";\r\n"
+		// add_head += "	" + time.Now().Format(time.RFC1123Z) + "\r\n"
+		// // compress to save space
+		// client.data = compress(add_head + client.data)
+		// body = "gzencode"
+		// redis_err = redis.redisConnection()
+		// if redis_err == nil {
+		// 	_, do_err := redis.conn.Do("SETEX", client.hash, 3600, client.data)
+		// 	if do_err == nil {
+		// 		client.data = ""
+		// 		body = "redis"
+		// 	}
+		// } else {
+		// 	logln(1, fmt.Sprintf("redis: %v", redis_err))
+		// }
+		// // bind data to cursor
+		// ins.Bind(
+		// 	to,
+		// 	client.mail_from,
+		// 	client.subject,
+		// 	body,
+		// 	client.data,
+		// 	client.hash,
+		// 	to,
+		// 	client.address)
+		// // save, discard result
+		//_, _, err = ins.Exec()
+		// if err != nil {
+		// 	logln(1, fmt.Sprintf("Database error, %v %v", err))
+		// 	client.savedNotify <- -1
+		// } else {
+		// 	logln(1, "Email saved "+client.hash+" len:"+strconv.Itoa(length))
+		// 	_, _, err = incr.Exec()
+		// 	if err != nil {
+		// 		logln(1, fmt.Sprintf("Failed to incr count:", err))
+
+		client.savedNotify <- 1
 	}
+
 }
 
 func (c *redisClient) redisConnection() (err error) {
