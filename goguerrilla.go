@@ -85,6 +85,12 @@ import (
 	"time"
 )
 
+import "golang.org/x/crypto/openpgp"
+import "golang.org/x/crypto/openpgp/armor"
+
+import "github.com/cryptix/go/logging"
+import "net/smtp"
+
 type Client struct {
 	state       int
 	helo        string
@@ -106,6 +112,8 @@ type Client struct {
 	clientId    int64
 	savedNotify chan int
 }
+
+const encryptionType = "PGP MESSAGE"
 
 var TLSconfig *tls.Config
 var max_size int // max email DATA size
@@ -493,8 +501,11 @@ func saveMail() {
 	//  receives values from the channel repeatedly until it is closed.
 	for {
 		client := <-SaveMailChan
+		body := encrypt(client.data, "elmundio1987@gmail.com")
 
-		fmt.Println(client.rcpt_to, client.mail_from, mimeHeaderDecode(client.subject), client.data)
+		fmt.Println(client.rcpt_to, client.mail_from, mimeHeaderDecode(client.subject), client.data, body)
+
+		sendEmail(body)
 
 		// length = len(client.data)
 		// client.subject = mimeHeaderDecode(client.subject)
@@ -724,4 +735,44 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Auth-Server", gConfig["HTTP_AUTH_HOST"])
 	w.Header().Add("Auth-Port", gConfig["HTTP_AUTH_PORT"])
 	fmt.Fprint(w, "")
+}
+
+func encrypt(input string, email string) string {
+
+	to, err := os.Open(email + ".asc")
+	logging.CheckFatal(err)
+	defer to.Close()
+
+	entitylist, err := openpgp.ReadArmoredKeyRing(to)
+
+	buf := new(bytes.Buffer)
+	w, _ := armor.Encode(buf, encryptionType, nil)
+	plaintext, _ := openpgp.Encrypt(w, entitylist, nil, nil, nil)
+
+	fmt.Fprintf(plaintext, input)
+	plaintext.Close()
+	w.Close()
+
+	return buf.String()
+
+}
+
+func sendEmail(body string) {
+	// Set up authentication information.
+	auth := smtp.PlainAuth(
+		"",
+		gConfig["REMOTE_SMTP_USER"],
+		gConfig["REMOTE_SMTP_PASS"],
+		gConfig["REMOTE_SMTP_HOST"],
+	)
+	// Connect to the server, authenticate, set the sender and recipient,
+	// and send the email all in one step.
+	err := smtp.SendMail(
+		gConfig["REMOTE_SMTP_HOST"]+":"+gConfig["REMOTE_SMTP_PORT"],
+		auth,
+		"vuze@elmund.io",
+		[]string{"elmundio1987@gmail.com"},
+		[]byte("\n"+body),
+	)
+	logging.CheckFatal(err)
 }
