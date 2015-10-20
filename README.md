@@ -1,103 +1,26 @@
 
-Go-Guerrilla SMTPd
+PGP Email Relay
 ====================
 
-An minimalist SMTP server written in Go, made for receiving large volumes of mail.
+A simple SMTP relay that will encrypt any emails that it recieves, and will relay
+the message via a remote SMTP server.
 
-![Go Guerrilla](https://raw.github.com/flashmob/go-guerrilla/master/GoGuerrilla.png)
+Most of the SMTP code is based on [Go Guerrilla](https://github.com/flashmob/go-guerrilla) by Flashmob
 
-### What is Go Guerrilla SMTPd?
-
-It's a small SMTP server written in Go, for the purpose of receiving large volume of email.
-Written for GuerrillaMail.com which processes tens of thousands of emails
-every hour.
-
-The purpose of this daemon is to grab the email, save it to the database
-and disconnect as quickly as possible.
-
-A typical user of this software would probably want to customize the saveMail function for
-their own systems.
-
-This server does not attempt to filter HTML, check for spam or do any sender 
-verification. These steps should be performed by other programs.
-The server does NOT send any email including bounces. This should
-be performed by a separate program.
-
-
-### History and purpose
-
-GoGuerrilla is a port of the original 'Guerrilla' SMTP daemon written in PHP using
-an event-driven I/O library (libevent)
-
-https://github.com/flashmob/Guerrilla-SMTPd
-
-It's not a direct port, although the purpose and functionality remains identical.
-
-This Go version was made in order to take advantage of our new server with 8 cores. 
-Not that the PHP version was taking much CPU anyway, it always stayed at about 1-5%
-despite guzzling down a ton of email every day...
-
-As always, the bottleneck today is the network and secondary storage. It's highly probable
-that in the near future, secondary storage will become so fast that the I/O bottleneck
-will not be an issue. Prices of Solid State Drives are dropping fast, their speeds are rapidly
-increasing. So if the I/O bottleneck would disappear, it will be replaced by a new bottleneck,
-the CPU. 
-
-To prepare for the CPU bottleneck, we need to be able to scale our software to multiple cores.
-Since PHP runs in a single process, it can only run on a single core. Sure, it would
-have been possible to use fork(), but that can get messy and doesn't play well with
-libevent. Also, it would have been possible to start an instance for each core and
-use a proxy to distribute the traffic to each instance, but that would make the system too
- complicated.
-
-The most alluring aspect of Go are the Goroutines! It makes concurrent programming
-easy, clean and fun! Go programs can also take advantage of all your machine's multiple 
-cores without much effort that you would otherwise need with forking or managing your
-event loop callbacks, etc. Golang solves the C10K problem in a very interesting way
- http://en.wikipedia.org/wiki/C10k_problem
-
-If you do invite GoGuerrilla in to your system, please remember to feed it with lots
-of spam - spam is what it likes best!
-
-Getting started
+Building
 ===========================
 
-To build, you will need to install the following Go libs:
+To build, you will need do the following;
 
-	$ go get github.com/ziutek/mymysql/thrsafe
-	$ go get github.com/ziutek/mymysql/autorc
-	$ go get github.com/ziutek/mymysql/godrv
-	$ go get github.com/sloonz/go-iconv
-	$ go get github.com/garyburd/redigo/redis
+1) Install Golang 
+2) Run the build script ```./build.sh```
 
-Rename goguerrilla.conf.sample to goguerrilla.conf
 
-Setup the following table:
-(The vanilla saveMail function also uses Redis)
+Before you run the server
+===========================
 
-	CREATE TABLE IF NOT EXISTS `new_mail` (
-	  `mail_id` int(11) NOT NULL auto_increment,
-	  `date` datetime NOT NULL,
-	  `from` varchar(128) character set latin1 NOT NULL,
-	  `to` varchar(128) character set latin1 NOT NULL,
-	  `subject` varchar(255) NOT NULL,
-	  `body` text NOT NULL,
-	  `charset` varchar(32) character set latin1 NOT NULL,
-	  `mail` longblob NOT NULL,
-	  `spam_score` float NOT NULL,
-	  `hash` char(32) character set latin1 NOT NULL,
-	  `content_type` varchar(64) character set latin1 NOT NULL,
-	  `recipient` varchar(128) character set latin1 NOT NULL,
-	  `has_attach` int(11) NOT NULL,
-	  `ip_addr` varchar(15) NOT NULL,
-	  `delivered` bit(1) NOT NULL default b'0',
-	  `attach_info` text NOT NULL,
-	  `dkim_valid` tinyint(4) default NULL,
-	  PRIMARY KEY  (`mail_id`),
-	  KEY `to` (`to`),
-	  KEY `hash` (`hash`),
-	  KEY `date` (`date`)
-	) ENGINE=InnoDB  DEFAULT CHARSET=utf8
+1) Rename goguerrilla.conf.sample to goguerrilla.conf and modify accordinly
+2) Run the key generation script ```./generate_keys.sh```
 
 
 Configuration
@@ -118,15 +41,15 @@ Copy goguerrilla.conf.sample to goguerrilla.conf
 	    "GSMTP_TIMEOUT":"100", // tcp connection timeout
 	    "GSMTP_VERBOSE":"N", // set to Y for debugging
 	    "GSTMP_LISTEN_INTERFACE":"5.9.7.183:25",
-	    "MYSQL_DB":"gmail_mail", // database name
-	    "MYSQL_HOST":"127.0.0.1:3306", // database connect
-	    "MYSQL_PASS":"$ecure1t", // database connection pass
-	    "MYSQL_USER":"gmail_mail", // database username
 	    "GM_MAX_CLIENTS":"500", // max clients that can be handled
-		"NGINX_AUTH_ENABLED":"N",// Y or N
-		"NGINX_AUTH":"127.0.0.1:8025", // If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx
+			"NGINX_AUTH_ENABLED":"N",// Y or N
+			"NGINX_AUTH":"127.0.0.1:8025", // If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx
 	    "SGID":"508",// group id of the user from /etc/passwd
-		"GUID":"504" // uid from /etc/passwd
+			"GUID":"504" // uid from /etc/passwd
+			"REMOTE_SMTP_USER":"user@remotehost.com", //user to log into remote SMTP server
+    	"REMOTE_SMTP_PASS":"password", //password of remote SMTP user 
+    	"REMOTE_SMTP_HOST":"smtp.remotehost.com", //remote SMTP server host
+    	"REMOTE_SMTP_PORT":"25" //which port to use when connecting to the remote SMTP server
 	}
 
 Using Nginx as a proxy
