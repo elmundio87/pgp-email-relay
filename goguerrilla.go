@@ -495,7 +495,13 @@ func saveMail() {
 	//  receives values from the channel repeatedly until it is closed.
 	for {
 		client := <-SaveMailChan
-		body := encrypt(client.data, "elmundio1987@gmail.com")
+
+		var subjectRegExp = regexp.MustCompile("^Subject:.*\n")
+
+		plaintext := client.data
+		plaintext = subjectRegExp.ReplaceAllString(plaintext, "")
+
+		body := encrypt(plaintext[:len(plaintext)-4], "elmundio1987@gmail.com")
 
 		fmt.Println(client.rcpt_to, client.mail_from, mimeHeaderDecode(client.subject), client.data, body)
 
