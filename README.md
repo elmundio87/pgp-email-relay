@@ -12,15 +12,15 @@ Building
 
 To build, you will need do the following;
 
-1) Install Golang 
-2) Run the build script ```./build.sh```
+1. Install Golang 
+2. Run the build script ```./build.sh```
 
 
 Before you run the server
 ===========================
 
-1) Rename goguerrilla.conf.sample to goguerrilla.conf and modify accordinly
-2) Run the key generation script ```./generate_keys.sh```
+1. Rename goguerrilla.conf.sample to goguerrilla.conf and modify accordinly
+2. Run the key generation script ```./generate_keys.sh```
 
 
 Configuration
