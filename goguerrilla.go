@@ -70,8 +70,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/sloonz/go-iconv"
 	"github.com/sloonz/go-qprintable"
-	//	"github.com/ziutek/mymysql/autorc"
-	//	_ "github.com/ziutek/mymysql/godrv"
 	"io"
 	"io/ioutil"
 	"log"
@@ -129,10 +127,6 @@ var gConfig = map[string]string{
 	"GSMTP_VERBOSE":          "Y",
 	"GSMTP_LOG_FILE":         "",    // Eg. /var/log/goguerrilla.log or leave blank if no logging
 	"GSMTP_TIMEOUT":          "100", // how many seconds before timeout.
-	"MYSQL_HOST":             "127.0.0.1:3306",
-	"MYSQL_USER":             "gmail_mail",
-	"MYSQL_PASS":             "ok",
-	"MYSQL_DB":               "gmail_mail",
 	"GM_MAIL_TABLE":          "new_mail",
 	"GSTMP_LISTEN_INTERFACE": "0.0.0.0:25",
 	"GSMTP_PUB_KEY":          "/etc/ssl/certs/ssl-cert-snakeoil.pem",
