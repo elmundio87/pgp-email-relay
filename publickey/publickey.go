@@ -4,6 +4,7 @@ import "golang.org/x/net/html"
 import "bytes"
 import "net/http"
 import "io/ioutil"
+import "strings"
 
 type HtmlOutput struct {
 	body string
@@ -45,8 +46,16 @@ func GetLinksFromHTML(body string) []string {
 	}
 }
 
+func FormatUrl(url string) string {
+	if strings.HasPrefix(url, "http") {
+		return url
+	} else {
+		return "http://" + url
+	}
+}
+
 func DownloadFile(url string) HtmlOutput {
-	resp, err := http.Get(url)
+	resp, err := http.Get(FormatUrl(url))
 
 	if err != nil {
 		return HtmlOutput{"", 404, err}

@@ -34,6 +34,10 @@ func TestGetKeyFromEmail(t *testing.T) {
 	assert.Contains(t, GetKeyFromEmail("elmundio1987@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "-----BEGIN PGP PUBLIC KEY BLOCK-----", "")
 }
 
+func TestGetKeyWhenNoProtocolProvided(t *testing.T) {
+	assert.Contains(t, GetKeyFromEmail("elmundio1987@gmail.com", "pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "-----BEGIN PGP PUBLIC KEY BLOCK-----", "")
+}
+
 func TestGetKeyFromWrongEmail(t *testing.T) {
 	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "No keys Found", "")
 }
