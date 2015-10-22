@@ -27,9 +27,17 @@ func TestGetFirstLinkFromHTML(t *testing.T) {
 }
 
 func TestDownloadKeyfile(t *testing.T) {
-	assert.NotEqual(t, DownloadKeyfile("https://pgp.mit.edu/pks/lookup?op=index&exact=on&search=elmundio1987@gmail.com"), "", "")
+	assert.NotEqual(t, DownloadFile("https://pgp.mit.edu/pks/lookup?op=index&exact=on&search=elmundio1987@gmail.com"), "", "")
 }
 
 func TestGetKeyFromEmail(t *testing.T) {
 	assert.Contains(t, GetKeyFromEmail("elmundio1987@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "-----BEGIN PGP PUBLIC KEY BLOCK-----", "")
+}
+
+func TestGetKeyFromWrongEmail(t *testing.T) {
+	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "No keys Found", "")
+}
+
+func TestGetKeyWhenHostDown(t *testing.T) {
+	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu2", "/pks/lookup?op=index&exact=on&search="), "Invalid Host", "")
 }

@@ -5,6 +5,12 @@ import "bytes"
 import "net/http"
 import "io/ioutil"
 
+type HtmlOutput struct {
+	body string
+	code int
+	err  error
+}
+
 func CreateQueryURL(host string, query string, email string) string {
 	return host + query + email
 }
@@ -39,27 +45,34 @@ func GetLinksFromHTML(body string) []string {
 	}
 }
 
-func DownloadQueryResult(query string) string {
-	resp, _ := http.Get(query)
+func DownloadFile(url string) HtmlOutput {
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return HtmlOutput{"", 404, err}
+	}
+
 	bytes, _ := ioutil.ReadAll(resp.Body)
 
 	resp.Body.Close()
 
-	return string(bytes)
-}
-
-func DownloadKeyfile(url string) string {
-	resp, _ := http.Get(url)
-	bytes, _ := ioutil.ReadAll(resp.Body)
-
-	resp.Body.Close()
-
-	return string(bytes)
+	return HtmlOutput{string(bytes), resp.StatusCode, nil}
 }
 
 func GetKeyFromEmail(email string, host string, query string) string {
 	keyserverLink := CreateQueryURL(host, query, email)
-	html := DownloadQueryResult(keyserverLink)
-	links := GetLinksFromHTML(html)
-	return DownloadKeyfile(host + string(links[0]))
+	html := DownloadFile(keyserverLink)
+
+	if html.err != nil {
+		return "Invalid Host"
+	}
+
+	links := GetLinksFromHTML(html.body)
+	if len(links) == 0 {
+		return "No keys Found"
+	}
+
+	keyLink := host + string(links[0])
+
+	return DownloadFile(keyLink).body
 }
