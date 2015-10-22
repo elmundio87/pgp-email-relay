@@ -2,10 +2,12 @@
 PGP Email Relay
 ====================
 
-A simple SMTP relay that will encrypt any emails that it recieves, and will relay
+A simple SMTP relay that will encrypt any emails that it receives, and will relay
 the message via a remote SMTP server.
 
 Most of the SMTP code is based on [Go Guerrilla](https://github.com/flashmob/go-guerrilla) by Flashmob
+
+Currently you will need to copy public keys into the same folder as the binary, named user@host.com.asc - this will be updated in future to make use of keyservers.
 
 Building
 ===========================
