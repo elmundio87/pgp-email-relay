@@ -497,15 +497,15 @@ func saveMail() {
 		client := <-SaveMailChan
 
 		var subjectRegExp = regexp.MustCompile("^Subject:.*\n")
-
+		var to = client.rcpt_to[1:len(client.rcpt_to)-1]
 		plaintext := client.data
 		plaintext = subjectRegExp.ReplaceAllString(plaintext, "")
 
-		body := encrypt(plaintext[:len(plaintext)-4], "elmundio1987@gmail.com")
+		body := encrypt(plaintext[:len(plaintext)-4], to)
 
-		fmt.Println(client.rcpt_to, client.mail_from, mimeHeaderDecode(client.subject), client.data, body)
+		fmt.Println(to, client.mail_from, mimeHeaderDecode(client.subject), client.data, body)
 
-		sendEmail(body)
+		sendEmail(body, to)
 
 		client.savedNotify <- 1
 	}
@@ -713,7 +713,7 @@ func encrypt(input string, email string) string {
 
 }
 
-func sendEmail(body string) {
+func sendEmail(body string, email string) {
 	// Set up authentication information.
 	auth := smtp.PlainAuth(
 		"",
@@ -727,7 +727,7 @@ func sendEmail(body string) {
 		gConfig["REMOTE_SMTP_HOST"]+":"+gConfig["REMOTE_SMTP_PORT"],
 		auth,
 		"vuze@elmund.io",
-		[]string{"elmundio1987@gmail.com"},
+		[]string{email},
 		[]byte("\n"+body),
 	)
 	logging.CheckFatal(err)
