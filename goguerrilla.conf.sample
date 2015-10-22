@@ -12,12 +12,14 @@
     "GSTMP_LISTEN_INTERFACE":"33.1.2.133:25",
     "MAX_SMTP_CLIENTS":"10000",
     "GM_MAX_CLIENTS":"500",
-	"NGINX_AUTH_ENABLED":"N",
-	"NGINX_AUTH":"127.0.0.1:8025",
+    "NGINX_AUTH_ENABLED":"N",
+    "NGINX_AUTH":"127.0.0.1:8025",
     "SGID":"508",
-	"GUID":"504",
+    "GUID":"504",
     "REMOTE_SMTP_USER":"user@remotehost.com",
     "REMOTE_SMTP_PASS":"password",
     "REMOTE_SMTP_HOST":"smtp.remotehost.com",
     "REMOTE_SMTP_PORT":"25"
+    "PGP_KEYSERVER":"pgp.mit.edu"
+    "PGP_KEYSERVER_QUERY":"/pks/lookup?op=index&exact=on&search="
 }
