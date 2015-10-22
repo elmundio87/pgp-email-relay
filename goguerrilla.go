@@ -83,6 +83,7 @@ import (
 	"time"
 )
 
+import "github.com/elmundio87/pgp-email-relay/publickey"
 import "golang.org/x/crypto/openpgp"
 import "golang.org/x/crypto/openpgp/armor"
 
@@ -693,10 +694,36 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "")
 }
 
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
 func encrypt(input string, email string) string {
 
-	to, err := os.Open(email + ".asc")
+	keyfileName := email + ".asc"
+	keyfileExists, _ := exists(keyfileName)
+	if !keyfileExists {
+		f, err := os.Create(keyfileName)
+		if err != nil {
+			fmt.Println(err)
+		}
+		n, err := io.WriteString(f, publickey.GetKeyFromEmail(email, gConfig["PGP_KEYSERVER"], gConfig["PGP_KEYSERVER_QUERY"]))
+		if err != nil {
+			fmt.Println(n, err)
+		}
+		f.Close()
+	}
+
+	to, err := os.Open(keyfileName)
 	logging.CheckFatal(err)
+
 	defer to.Close()
 
 	entitylist, err := openpgp.ReadArmoredKeyRing(to)
