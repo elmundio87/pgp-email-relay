@@ -19,9 +19,17 @@ var keyserver_result = `<html xmlns="http://www.w3.org/1999/xhtml"><head>
 </body></html>`
 
 func TestCreateQueryURLAppendsParametersCorrectly(t *testing.T) {
-	assert.Equal(t, CreateQueryURL("http://keys.pgp.net/get.pgp?search=", "elmundio1987@gmail.com"), "http://keys.pgp.net/get.pgp?search=elmundio1987@gmail.com", "")
+	assert.Equal(t, CreateQueryURL("http://keys.pgp.net", "/get.pgp?search=", "elmundio1987@gmail.com"), "http://keys.pgp.net/get.pgp?search=elmundio1987@gmail.com", "")
 }
 
 func TestGetFirstLinkFromHTML(t *testing.T) {
 	assert.Equal(t, GetLinksFromHTML(keyserver_result)[0], "/pks/lookup?op=get&search=0xC63AB6290F0E5CA5", "")
+}
+
+func TestDownloadKeyfile(t *testing.T) {
+	assert.NotEqual(t, DownloadKeyfile("https://pgp.mit.edu/pks/lookup?op=index&exact=on&search=elmundio1987@gmail.com"), "", "")
+}
+
+func TestGetKeyFromEmail(t *testing.T) {
+	assert.Contains(t, GetKeyFromEmail("elmundio1987@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "-----BEGIN PGP PUBLIC KEY BLOCK-----", "")
 }
