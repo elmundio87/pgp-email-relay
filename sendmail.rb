@@ -18,5 +18,4 @@ EOF
   end
 end
     
-#send('elmundio1987@gmail.com', 'testing', 'This is a message!')
-send('namepoc@hotmail.com', 'testing', 'This is a message!')
+send('elmundio1987@gmail.com', 'testing', 'This is a message!')
