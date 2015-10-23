@@ -509,17 +509,21 @@ func saveMail() {
 
 		headers := msg.Header
 
+		headersString := ""
+
 		for key, value := range headers {
 			fmt.Println("Key:", key, "Value:", value)
+			headersString = headersString + key + ": " + value[0] + "\n"
 		}
+		headersString = headersString + "\n"
 
 		body, _ := ioutil.ReadAll(msg.Body)
 
 		encryptedBody := encrypt(string(body), to)
 
-		fmt.Println(to, client.mail_from, mimeHeaderDecode(client.subject), client.data, encryptedBody)
+		//fmt.Println(to, client.mail_from, mimeHeaderDecode(client.subject), client.data, encryptedBody)
 
-		sendEmail(encryptedBody, to)
+		sendEmail(headersString+encryptedBody, to)
 
 		client.savedNotify <- 1
 	}
@@ -779,7 +783,7 @@ func sendEmail(body string, email string) {
 		auth,
 		"vuze@elmund.io",
 		[]string{email},
-		[]byte("\n"+body),
+		[]byte(body),
 	)
 	logging.CheckFatal(err)
 }
