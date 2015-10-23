@@ -89,6 +89,7 @@ import "golang.org/x/crypto/openpgp/armor"
 
 import "github.com/cryptix/go/logging"
 import "net/smtp"
+import "path"
 
 type Client struct {
 	state       int
@@ -707,14 +708,25 @@ func exists(path string) (bool, error) {
 
 func encrypt(input string, email string) string {
 
-	keyfileName := email + ".asc"
+	os.MkdirAll(gConfig["PGP_KEY_FOLDER"], 0777)
+	keyfileName := path.Join(gConfig["PGP_KEY_FOLDER"], email+".asc")
 	keyfileExists, _ := exists(keyfileName)
 	if !keyfileExists {
+
+		key := publickey.GetKeyFromEmail(email, gConfig["PGP_KEYSERVER"], gConfig["PGP_KEYSERVER_QUERY"])
+		if key == "no keys found" {
+			return key + " on keyserver " + gConfig["PGP_KEYSERVER"] + " from query " + gConfig["PGP_KEYSERVER"] + gConfig["PGP_KEYSERVER_QUERY"] + email
+		}
+
+		if key == "invalid host" {
+			return gConfig["PGP_KEYSERVER"] + " is offline and your key has not previously been cached."
+		}
+
 		f, err := os.Create(keyfileName)
 		if err != nil {
 			fmt.Println(err)
 		}
-		n, err := io.WriteString(f, publickey.GetKeyFromEmail(email, gConfig["PGP_KEYSERVER"], gConfig["PGP_KEYSERVER_QUERY"]))
+		n, err := io.WriteString(f, key)
 		if err != nil {
 			fmt.Println(n, err)
 		}

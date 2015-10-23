@@ -5,6 +5,7 @@
     "REMOTE_SMTP_PORT":"25",
     "PGP_KEYSERVER":"pgp.mit.edu",
     "PGP_KEYSERVER_QUERY":"/pks/lookup?op=index&exact=on&search=",
+    "PGP_KEY_FOLDER":"key_cache",
     "GM_ALLOWED_HOSTS":"example.com,sample.com,foo.com,bar.com",
     "GM_MAIL_TABLE":"new_mail",
     "GM_PRIMARY_MAIL_HOST":"mail.example.com",

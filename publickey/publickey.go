@@ -73,12 +73,12 @@ func GetKeyFromEmail(email string, host string, query string) string {
 	html := DownloadFile(keyserverLink)
 
 	if html.err != nil {
-		return "Invalid Host"
+		return "invalid host"
 	}
 
 	links := GetLinksFromHTML(html.body)
 	if len(links) == 0 {
-		return "No keys Found"
+		return "no keys found"
 	}
 
 	keyLink := host + string(links[0])
