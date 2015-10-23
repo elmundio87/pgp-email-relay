@@ -107,9 +107,9 @@ func TestGetKeyWhenNoProtocolProvided(t *testing.T) {
 }
 
 func TestGetKeyFromWrongEmail(t *testing.T) {
-	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "No keys Found", "")
+	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu", "/pks/lookup?op=index&exact=on&search="), "no keys found", "")
 }
 
 func TestGetKeyWhenHostDown(t *testing.T) {
-	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu2", "/pks/lookup?op=index&exact=on&search="), "Invalid Host", "")
+	assert.Equal(t, GetKeyFromEmail("elmundio1988@gmail.com", "https://pgp.mit.edu2", "/pks/lookup?op=index&exact=on&search="), "invalid host", "")
 }

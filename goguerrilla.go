@@ -89,6 +89,7 @@ import "golang.org/x/crypto/openpgp/armor"
 
 import "github.com/cryptix/go/logging"
 import "net/smtp"
+import "net/mail"
 import "path"
 
 type Client struct {
@@ -499,15 +500,26 @@ func saveMail() {
 		client := <-SaveMailChan
 
 		var subjectRegExp = regexp.MustCompile("^Subject:.*\n")
-		var to = client.rcpt_to[1:len(client.rcpt_to)-1]
+		var to = client.rcpt_to[1 : len(client.rcpt_to)-1]
 		plaintext := client.data
 		plaintext = subjectRegExp.ReplaceAllString(plaintext, "")
 
-		body := encrypt(plaintext[:len(plaintext)-4], to)
+		emailData := plaintext[:len(plaintext)-4]
+		msg, _ := mail.ReadMessage(bytes.NewBuffer([]byte(emailData)))
 
-		fmt.Println(to, client.mail_from, mimeHeaderDecode(client.subject), client.data, body)
+		headers := msg.Header
 
-		sendEmail(body, to)
+		for key, value := range headers {
+			fmt.Println("Key:", key, "Value:", value)
+		}
+
+		body, _ := ioutil.ReadAll(msg.Body)
+
+		encryptedBody := encrypt(string(body), to)
+
+		fmt.Println(to, client.mail_from, mimeHeaderDecode(client.subject), client.data, encryptedBody)
+
+		sendEmail(encryptedBody, to)
 
 		client.savedNotify <- 1
 	}
