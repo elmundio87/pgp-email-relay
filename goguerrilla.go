@@ -68,7 +68,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-	"github.com/sloonz/go-iconv"
+//	"github.com/sloonz/go-iconv"
 	"github.com/sloonz/go-qprintable"
 	"io"
 	"io/ioutil"
@@ -624,14 +624,14 @@ func mailTransportDecode(str string, encoding_type string, charset string) strin
 	} else if encoding_type == "quoted-printable" {
 		str = fromQuotedP(str)
 	}
-	if charset != "UTF-8" {
+	/*if charset != "UTF-8" {
 		charset = fixCharset(charset)
 		// eg. charset can be "ISO-2022-JP"
 		convstr, err := iconv.Conv(str, "UTF-8", charset)
 		if err == nil {
 			return convstr
 		}
-	}
+	}*/
 	return str
 }
 

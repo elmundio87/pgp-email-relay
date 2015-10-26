@@ -1,2 +1,4 @@
 ./dependencies.sh
-go build *.go
+
+go build -o bin/perd
+    
