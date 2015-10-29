@@ -158,7 +158,7 @@ func configure() {
 	var configFile, verbose, iface string
 	log.SetOutput(os.Stdout)
 	// parse command line arguments
-	flag.StringVar(&configFile, "config", "goguerrilla.conf", "Path to the configuration file")
+	flag.StringVar(&configFile, "config", "smtp.conf", "Path to the configuration file")
 	flag.StringVar(&verbose, "v", "n", "Verbose, [y | n] ")
 	flag.StringVar(&iface, "if", "", "Interface and port to listen on, eg. 127.0.0.1:2525 ")
 	flag.Parse()
