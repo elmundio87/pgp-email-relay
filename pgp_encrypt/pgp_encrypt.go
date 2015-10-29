@@ -1,25 +1,30 @@
 package pgp_encrypt
 
-import(
-"bytes"
-"os"
-"path"
-"github.com/elmundio87/pgp-email-relay/publickey"
-"fmt"
-"io"
-"io/ioutil"
-"golang.org/x/crypto/openpgp"
-"golang.org/x/crypto/openpgp/armor"
-"github.com/cryptix/go/logging"
-"net/smtp"
-"net/mail"
+import (
+  "bytes"
+  "fmt"
+  "github.com/cryptix/go/logging"
+  "github.com/elmundio87/pgp-email-relay/publickey"
+  "golang.org/x/crypto/openpgp"
+  "golang.org/x/crypto/openpgp/armor"
+  "io"
+  "io/ioutil"
+  "net/mail"
+  "net/smtp"
+  "os"
+  "path"
+  "strings"
 )
 
 const encryptionType = "PGP MESSAGE"
 
-func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]string){
-    
-    var to = client_rcpt_to[1 : len(client_rcpt_to)-1]
+func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]string) {
+
+  var to = client_rcpt_to[1 : len(client_rcpt_to)-1]
+
+  addresses := strings.Split(to, ",")
+
+  for _, address := range addresses {
 
     emailData := client_data[:len(client_data)-4]
     msg, _ := mail.ReadMessage(bytes.NewBuffer([]byte(emailData)))
@@ -37,9 +42,12 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
 
     body, _ := ioutil.ReadAll(msg.Body)
 
-    encryptedBody := encrypt(string(body), to, gConfig)
+    encryptedBody := encrypt(string(body), address, gConfig)
 
-    sendEmail(headersString+encryptedBody, to, gConfig)
+    sendEmail(headersString+encryptedBody, address, gConfig)
+
+  }
+
 }
 
 func encrypt(input string, email string, gConfig map[string]string) string {
