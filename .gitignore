@@ -6,3 +6,4 @@
 *.secure
 goguerrilla
 bin/
+release/

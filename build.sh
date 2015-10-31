@@ -1,8 +1,9 @@
 ./dependencies.sh
 
-rm -rf ./bin
+rm -rf ./release
 
 BIN="pgp-smtpd"
+TAG=`git tag`
 
 for GOOS in windows darwin linux; do
     for GOARCH in 386 amd64; do
@@ -11,10 +12,11 @@ for GOOS in windows darwin linux; do
       export GOARCH=$GOARCH
       if [ "$GOOS" == "windows" ]
       then
-        go build -o bin/${BIN}-$GOOS-$GOARCH.exe
+        go build -o release/$GOOS-$GOARCH/${BIN}.exe
       else
-        go build -o bin/${BIN}-$GOOS-$GOARCH
+        go build -o release/$GOOS-$GOARCH/${BIN}
       fi
+      zip -j release/${BIN}-${GOOS}-${GOARCH}-${TAG}.zip release/$GOOS-$GOARCH/* README.md smtp.conf.sample generate_keys.sh
     done
 done
  
