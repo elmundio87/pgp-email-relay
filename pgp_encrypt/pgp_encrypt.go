@@ -7,6 +7,7 @@ import (
   "github.com/elmundio87/pgp-email-relay/publickey"
   "golang.org/x/crypto/openpgp"
   "golang.org/x/crypto/openpgp/armor"
+  "html/template"
   "io"
   "io/ioutil"
   "net/mail"
@@ -14,6 +15,7 @@ import (
   "os"
   "path"
   "strings"
+  "time"
 )
 
 const encryptionType = "PGP MESSAGE"
@@ -27,19 +29,22 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
   for _, address := range addresses {
 
     emailData := client_data[:len(client_data)-4]
-    msg, _ := mail.ReadMessage(bytes.NewBuffer([]byte(emailData)))
+    msg, err := mail.ReadMessage(bytes.NewBuffer([]byte(emailData)))
+
+    if err != nil {
+      sendErrorReport(err, address, gConfig)
+      return
+    }
 
     headers := msg.Header
 
     headersString := ""
 
     for key, value := range headers {
-      fmt.Println("Key:", key, "Value:", value)
       headersString = headersString + key + ": " + value[0] + "\n"
     }
 
     headersString = headersString + "\n"
-
     body, _ := ioutil.ReadAll(msg.Body)
 
     encryptedBody := encrypt(string(body), address, gConfig)
@@ -47,6 +52,37 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
     sendEmail(headersString+encryptedBody, address, gConfig)
 
   }
+
+}
+
+// http://stackoverflow.com/a/31742265
+func sendErrorReport(err error, address string, gConfig map[string]string) {
+
+  bodyTemplate := `Subject: Error Report
+
+
+Error: {{.Error}}
+Time: {{.Time}}
+
+Open issues: https://github.com/elmundio87/pgp-email-relay/issues
+
+Feel free to submit a bug report.
+
+`
+  data := map[string]interface{}{
+    "Error":   err.Error(),
+    "Address": address,
+    "Time":    time.Now(),
+  }
+
+  t := template.Must(template.New("email").Parse(bodyTemplate))
+  buf := &bytes.Buffer{}
+  if err := t.Execute(buf, data); err != nil {
+    panic(err)
+  }
+  body := buf.String()
+
+  sendEmail(body, address, gConfig)
 
 }
 
