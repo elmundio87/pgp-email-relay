@@ -7,7 +7,8 @@ the message via a remote SMTP server.
 
 Most of the SMTP code is based on [Go Guerrilla](https://github.com/flashmob/go-guerrilla) by Flashmob
 
-Currently you will need to copy public keys into the same folder as the binary, named user@host.com.asc - this will be updated in future to make use of keyservers.
+Public keys are downloaded from a keyserver (the keyserver URL is configurable). You can also place your own keys into the key cache folder, these will not be overwritten.
+
 
 Building
 ===========================
@@ -21,38 +22,39 @@ To build, you will need do the following;
 Before you run the server
 ===========================
 
-1. Rename goguerrilla.conf.sample to goguerrilla.conf and modify accordinly
+1. Rename smtp.conf.sample to smtp.conf and modify accordingly
 2. Run the key generation script ```./generate_keys.sh```
 
 
 Configuration
 ============================================
 The configuration is in strict JSON format. Here is an annotated configuration.
-Copy goguerrilla.conf.sample to goguerrilla.conf
+Copy smtp.conf.sample to smtp.conf
 
-
-	{
-	    "GM_ALLOWED_HOSTS":"example.com,sample.com,foo.com,bar.com", // which domains accept mail
-	    "GM_MAIL_TABLE":"new_mail", // name of new email table
-	    "GM_PRIMARY_MAIL_HOST":"mail.example.com", // given in the SMTP greeting
-	    "GSMTP_HOST_NAME":"mail.example.com", // given in the SMTP greeting
-	    "GSMTP_LOG_FILE":"/dev/stdout", // not used yet
-	    "GSMTP_MAX_SIZE":"131072", // max size of DATA command
-	    "GSMTP_PRV_KEY":"/etc/ssl/private/example.com.key", // private key for TLS
-	    "GSMTP_PUB_KEY":"/etc/ssl/certs/example.com.crt", // public key for TLS
-	    "GSMTP_TIMEOUT":"100", // tcp connection timeout
-	    "GSMTP_VERBOSE":"N", // set to Y for debugging
-	    "GSTMP_LISTEN_INTERFACE":"5.9.7.183:25",
-	    "GM_MAX_CLIENTS":"500", // max clients that can be handled
-			"NGINX_AUTH_ENABLED":"N",// Y or N
-			"NGINX_AUTH":"127.0.0.1:8025", // If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx
-	    "SGID":"508",// group id of the user from /etc/passwd
-			"GUID":"504" // uid from /etc/passwd
-			"REMOTE_SMTP_USER":"user@remotehost.com", //user to log into remote SMTP server
-    	"REMOTE_SMTP_PASS":"password", //password of remote SMTP user 
-    	"REMOTE_SMTP_HOST":"smtp.remotehost.com", //remote SMTP server host
-    	"REMOTE_SMTP_PORT":"25" //which port to use when connecting to the remote SMTP server
-	}
+| Config Option  | Purpose  |
+|---|---|
+|REMOTE_SMTP_USER|Remote SMTP server username|
+|REMOTE_SMTP_PASS|Remote SMTP server password|
+|REMOTE_SMTP_HOST|Remote SMTP server hostname|
+|REMOTE_SMTP_PORT|Which port the remote SMTP server is listening on|
+|PGP_KEYSERVER|The PGP keyserver that will be used to cache keys from|
+|PGP_KEYSERVER_QUERY|The URL query that is used to search for keys|
+|PGP_KEY_FOLDER|Where keys are cached|
+|GM_ALLOWED_HOSTS|Which domains accept mail|
+|GM_PRIMARY_MAIL_HOST|Given in the SMTP greeting|
+|GSMTP_HOST_NAME|Given in the SMTP greeting|
+|GSMTP_LOG_FILE"|Not used yet|
+|GSMTP_MAX_SIZE|Max size of DATA command|
+|GSMTP_PRV_KEY|Private key for TLS|
+|GSMTP_PUB_KEY|Public key for TLS|
+|GSMTP_TIMEOUT|TCP connection timeout|
+|GSMTP_VERBOSE|set to Y for debugging|
+|GSTMP_LISTEN_INTERFACE|What IP:PORT to listen on|
+|GM_MAX_CLIENTS|Max clients that can be handled|
+|NGINX_AUTH_ENABLED| Enable Nginx authentication (Y or N)|
+|NGINX_AUTH|If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx|
+|SGID|Group id of the user from /etc/passwd|
+|GUID|Uid from /etc/passwd|
 
 Using Nginx as a proxy
 =========================================================
@@ -109,15 +111,12 @@ Starting / Command Line usage
 
 All command line arguments are optional
 
-	-config="goguerrilla.conf": Path to the configuration file
+	-config="smtp.conf": Path to the configuration file
 	 -if="": Interface and port to listen on, eg. 127.0.0.1:2525
 	 -v="n": Verbose, [y | n]
 
 Starting from the command line (example)
 
-	/usr/bin/nohup /home/mike/goguerrilla -config=/home/mike/goguerrilla.conf 2>&1 &
+	/usr/bin/nohup /home/elmundio87/pgp-email-relaay -config=/home/elmundio87/smtp.conf 2>&1 &
 
 This will place goguerrilla in the background and continue running
-
-You may also put another process to watch your goguerrilla process and re-start it
-if something goes wrong.
