@@ -33,7 +33,7 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
     msg, err := mail.ReadMessage(bytes.NewBuffer([]byte(emailData)))
 
     if err != nil {
-      sendErrorReport(err, address, gConfig)
+      sendErrorReport(err, emailData, address, gConfig)
       return
     }
 
@@ -53,7 +53,7 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
 }
 
 // http://stackoverflow.com/a/31742265
-func sendErrorReport(err error, address string, gConfig map[string]string) {
+func sendErrorReport(err error, emailData string, address string, gConfig map[string]string) {
 
   bodyTemplate := `
 Error: {{.Error}}
@@ -63,7 +63,10 @@ Open issues: https://github.com/elmundio87/pgp-email-relay/issues
 
 Feel free to submit a bug report.
 
+Below is the message that caused the error (encrypted);
+
 `
+  encryptedDataDump := encrypt(string(emailData), address, gConfig)
   data := map[string]interface{}{
     "Error":   err.Error(),
     "Address": address,
@@ -81,7 +84,7 @@ Feel free to submit a bug report.
   }
   body := buf.String()
 
-  sendEmail(headers, body, address, gConfig)
+  sendEmail(headers, body+encryptedDataDump, address, gConfig)
 
 }
 
