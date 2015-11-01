@@ -5,6 +5,7 @@ import (
   "fmt"
   "github.com/cryptix/go/logging"
   "github.com/elmundio87/pgp-email-relay/publickey"
+  "github.com/scorredoira/email"
   "golang.org/x/crypto/openpgp"
   "golang.org/x/crypto/openpgp/armor"
   "html/template"
@@ -36,20 +37,16 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
       return
     }
 
-    headers := msg.Header
-
-    headersString := ""
-
-    for key, value := range headers {
-      headersString = headersString + key + ": " + value[0] + "\n"
+    headers := make(map[string]string)
+    for key, value := range msg.Header {
+      headers[key] = value[0]
     }
 
-    headersString = headersString + "\n"
     body, _ := ioutil.ReadAll(msg.Body)
 
     encryptedBody := encrypt(string(body), address, gConfig)
 
-    sendEmail(headersString+encryptedBody, address, gConfig)
+    sendEmail(headers, encryptedBody, address, gConfig)
 
   }
 
@@ -58,9 +55,7 @@ func HandleMail(client_data string, client_rcpt_to string, gConfig map[string]st
 // http://stackoverflow.com/a/31742265
 func sendErrorReport(err error, address string, gConfig map[string]string) {
 
-  bodyTemplate := `Subject: Error Report
-
-
+  bodyTemplate := `
 Error: {{.Error}}
 Time: {{.Time}}
 
@@ -75,6 +70,9 @@ Feel free to submit a bug report.
     "Time":    time.Now(),
   }
 
+  headers := make(map[string]string)
+  headers["Subject"] = "Crash Report"
+
   t := template.Must(template.New("email").Parse(bodyTemplate))
   buf := &bytes.Buffer{}
   if err := t.Execute(buf, data); err != nil {
@@ -82,7 +80,7 @@ Feel free to submit a bug report.
   }
   body := buf.String()
 
-  sendEmail(body, address, gConfig)
+  sendEmail(headers, body, address, gConfig)
 
 }
 
@@ -132,23 +130,21 @@ func encrypt(input string, email string, gConfig map[string]string) string {
 
 }
 
-func sendEmail(body string, email string, gConfig map[string]string) {
-  // Set up authentication information.
-  auth := smtp.PlainAuth(
-    "",
-    gConfig["REMOTE_SMTP_USER"],
-    gConfig["REMOTE_SMTP_PASS"],
-    gConfig["REMOTE_SMTP_HOST"],
-  )
-  // Connect to the server, authenticate, set the sender and recipient,
-  // and send the email all in one step.
-  err := smtp.SendMail(
-    gConfig["REMOTE_SMTP_HOST"]+":"+gConfig["REMOTE_SMTP_PORT"],
-    auth,
-    "vuze@elmund.io",
-    []string{email},
-    []byte(body),
-  )
+func sendEmail(headers map[string]string, body string, address string, gConfig map[string]string) {
+
+  host := gConfig["REMOTE_SMTP_HOST"]
+  port := gConfig["REMOTE_SMTP_PORT"]
+  user := gConfig["REMOTE_SMTP_USER"]
+  password := gConfig["REMOTE_SMTP_PASS"]
+
+  to, _ := mail.ParseAddress(address)
+  from, _ := mail.ParseAddress(headers["From"])
+
+  m := email.NewMessage(headers["Subject"], body)
+  m.From = from.Address
+  m.To = []string{to.Address}
+
+  err := email.Send(host+":"+port, smtp.PlainAuth("", user, password, host), m)
   logging.CheckFatal(err)
 }
 
