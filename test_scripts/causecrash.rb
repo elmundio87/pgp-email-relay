@@ -20,7 +20,6 @@ To: A Test User <test@todmain.com>
 Subject: Sending Attachement
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=#{marker}
-
 --#{marker}
 EOF
 
