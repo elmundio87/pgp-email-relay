@@ -3,7 +3,7 @@
 rm -rf ./release
 
 BIN="pgp-smtpd"
-TAG=`git tag`
+TAG=`git describe --tags`
 
 for GOOS in windows darwin linux; do
     for GOARCH in 386 amd64; do
