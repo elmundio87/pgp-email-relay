@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.3 (2015-11-1)
+
+### Fix release
+
+- The previous release had a nasty bug preventing the message body from showing
+ if the attachment was enabled. This has been fixed
+
+No new features, just a bug fix
+
 ## v0.2 (2015-11-1)
 
 ### Initial attachment support
