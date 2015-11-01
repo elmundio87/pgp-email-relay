@@ -72,6 +72,7 @@ Feel free to submit a bug report.
 
   headers := make(map[string]string)
   headers["Subject"] = "Crash Report"
+  headers["From"] = gConfig["REMOTE_SMTP_USER"]
 
   t := template.Must(template.New("email").Parse(bodyTemplate))
   buf := &bytes.Buffer{}
@@ -137,12 +138,20 @@ func sendEmail(headers map[string]string, body string, address string, gConfig m
   user := gConfig["REMOTE_SMTP_USER"]
   password := gConfig["REMOTE_SMTP_PASS"]
 
-  to, _ := mail.ParseAddress(address)
-  from, _ := mail.ParseAddress(headers["From"])
-
   m := email.NewMessage(headers["Subject"], body)
-  m.From = from.Address
-  m.To = []string{to.Address}
+
+  fromAddress := "Unknown"
+  fromHeader, ok := headers["From"]
+  if ok {
+    from, _ := mail.ParseAddress(fromHeader)
+    fromAddress = from.Address
+  }
+
+  to, _ := mail.ParseAddress(address)
+  toAddress := to.Address
+
+  m.From = fromAddress
+  m.To = []string{toAddress}
 
   err := email.Send(host+":"+port, smtp.PlainAuth("", user, password, host), m)
   logging.CheckFatal(err)
