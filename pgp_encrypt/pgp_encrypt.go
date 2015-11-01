@@ -4,7 +4,7 @@ import (
   "bytes"
   "fmt"
   "github.com/cryptix/go/logging"
-  "github.com/elmundio87/email"
+  "github.com/elmundio87/pgp-email-relay/email"
   "github.com/elmundio87/pgp-email-relay/publickey"
   "golang.org/x/crypto/openpgp"
   "golang.org/x/crypto/openpgp/armor"
