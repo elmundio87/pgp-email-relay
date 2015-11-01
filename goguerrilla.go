@@ -68,7 +68,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-//	"github.com/sloonz/go-iconv"
+	//	"github.com/sloonz/go-iconv"
 	"github.com/sloonz/go-qprintable"
 	"io"
 	"io/ioutil"
@@ -84,7 +84,6 @@ import (
 )
 
 import "github.com/elmundio87/pgp-email-relay/pgp_encrypt"
-
 
 type Client struct {
 	state       int
@@ -117,12 +116,12 @@ var sem chan int // currently active clients
 var SaveMailChan chan *Client // workers for saving mail
 // defaults. Overwrite any of these in the configure() function which loads them from a json file
 var gConfig = map[string]string{
+	"PGP_ATTACH_BODY":        "Y",
 	"GSMTP_MAX_SIZE":         "131072",
 	"GSMTP_HOST_NAME":        "server.example.com", // This should also be set to reflect your RDNS
 	"GSMTP_VERBOSE":          "Y",
 	"GSMTP_LOG_FILE":         "",    // Eg. /var/log/goguerrilla.log or leave blank if no logging
 	"GSMTP_TIMEOUT":          "100", // how many seconds before timeout.
-	"GM_MAIL_TABLE":          "new_mail",
 	"GSTMP_LISTEN_INTERFACE": "0.0.0.0:25",
 	"GSMTP_PUB_KEY":          "/etc/ssl/certs/ssl-cert-snakeoil.pem",
 	"GSMTP_PRV_KEY":          "/etc/ssl/private/ssl-cert-snakeoil.key",

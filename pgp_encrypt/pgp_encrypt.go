@@ -4,8 +4,8 @@ import (
   "bytes"
   "fmt"
   "github.com/cryptix/go/logging"
+  "github.com/elmundio87/email"
   "github.com/elmundio87/pgp-email-relay/publickey"
-  "github.com/scorredoira/email"
   "golang.org/x/crypto/openpgp"
   "golang.org/x/crypto/openpgp/armor"
   "html/template"
@@ -152,6 +152,10 @@ func sendEmail(headers map[string]string, body string, address string, gConfig m
 
   m.From = fromAddress
   m.To = []string{toAddress}
+
+  if gConfig["PGP_ATTACH_BODY"] == "Y" {
+    m.AttachData("message.asc", []byte(body))
+  }
 
   err := email.Send(host+":"+port, smtp.PlainAuth("", user, password, host), m)
   logging.CheckFatal(err)

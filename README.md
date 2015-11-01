@@ -31,30 +31,31 @@ Configuration
 The configuration is in strict JSON format. Here is an annotated configuration.
 Copy smtp.conf.sample to smtp.conf
 
-| Config Option  | Purpose  |
-|---|---|
-|REMOTE_SMTP_USER|Remote SMTP server username|
-|REMOTE_SMTP_PASS|Remote SMTP server password|
-|REMOTE_SMTP_HOST|Remote SMTP server hostname|
-|REMOTE_SMTP_PORT|Which port the remote SMTP server is listening on|
-|PGP_KEYSERVER|The PGP keyserver that will be used to cache keys from|
-|PGP_KEYSERVER_QUERY|The URL query that is used to search for keys|
-|PGP_KEY_FOLDER|Where keys are cached|
-|GM_ALLOWED_HOSTS|Which domains accept mail|
-|GM_PRIMARY_MAIL_HOST|Given in the SMTP greeting|
-|GSMTP_HOST_NAME|Given in the SMTP greeting|
-|GSMTP_LOG_FILE"|Not used yet|
-|GSMTP_MAX_SIZE|Max size of DATA command|
-|GSMTP_PRV_KEY|Private key for TLS|
-|GSMTP_PUB_KEY|Public key for TLS|
-|GSMTP_TIMEOUT|TCP connection timeout|
-|GSMTP_VERBOSE|set to Y for debugging|
-|GSTMP_LISTEN_INTERFACE|What IP:PORT to listen on|
-|GM_MAX_CLIENTS|Max clients that can be handled|
-|NGINX_AUTH_ENABLED| Enable Nginx authentication (Y or N)|
-|NGINX_AUTH|If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx|
-|SGID|Group id of the user from /etc/passwd|
-|GUID|Uid from /etc/passwd|
+| Config Option  | Purpose  | Example |
+|---|---|---|
+|REMOTE_SMTP_USER|Remote SMTP server username| user@remotehost.com |
+|REMOTE_SMTP_PASS|Remote SMTP server password| p@55w0rd |
+|REMOTE_SMTP_HOST|Remote SMTP server hostname| smtp.remotehost.com |
+|REMOTE_SMTP_PORT|Which port the remote SMTP server is listening on| 25 |
+|PGP_KEYSERVER|The PGP keyserver that will be used to cache keys from| pgp.mit.edu |
+|PGP_KEYSERVER_QUERY|The URL query that is used to search for keys| /pks/lookup?op=index&exact=on&search= |
+|PGP_KEY_FOLDER|Where keys are cached| /tmp/key_cache |
+|PGP_ATTACH_BODY|Attach the contents of the encrypted email body. Makes it easier to decrypt on mobile clients.| Y or N |
+|GM_ALLOWED_HOSTS|Which domains accept mail| localhost, mail.yourhost.com |
+|GM_PRIMARY_MAIL_HOST|Given in the SMTP greeting| mail.yourhost.com |
+|GSMTP_HOST_NAME|Given in the SMTP greeting| mail.yourhost.com |
+|GSMTP_LOG_FILE"|Not used yet| N/A |
+|GSMTP_MAX_SIZE|Max size of DATA command| 15728640 |
+|GSMTP_PRV_KEY|Private key for TLS|server.key|
+|GSMTP_PUB_KEY|Public key for TLS|server.cert|
+|GSMTP_TIMEOUT|TCP connection timeout in seconds|100|
+|GSMTP_VERBOSE|Enable Debugging|Y or N|
+|GSTMP_LISTEN_INTERFACE|What IP:PORT to listen on|127.0.0.1:25|
+|GM_MAX_CLIENTS|Max clients that can be handled|500|
+|NGINX_AUTH_ENABLED| Enable Nginx authentication|Y or N|
+|NGINX_AUTH|If using Nginx proxy, choose an ip and port to serve Auth requsts for Nginx|127.0.0.1:8025|
+|SGID|Group id of the user from /etc/passwd|508|
+|GUID|Uid from /etc/passwd|504|
 
 Using Nginx as a proxy
 =========================================================

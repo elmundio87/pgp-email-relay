@@ -5,4 +5,4 @@ go get -v github.com/sloonz/go-iconv
 go get -v github.com/garyburd/redigo/redis
 go get -v github.com/sloonz/go-qprintable
 go get -v golang.org/x/net/html
-go get -v github.com/scorredoira/email
+go get -v github.com/elmundio87/email
