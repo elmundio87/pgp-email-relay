@@ -240,6 +240,7 @@ func main() {
 	}
 	var clientId int64
 	clientId = 1
+	welcomeMessage()
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -655,4 +656,11 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Auth-Server", gConfig["HTTP_AUTH_HOST"])
 	w.Header().Add("Auth-Port", gConfig["HTTP_AUTH_PORT"])
 	fmt.Fprint(w, "")
+}
+
+func welcomeMessage() {
+	message := `
+PGP Email Relay has started without any errors.
+	`
+	fmt.Println(message)
 }
