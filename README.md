@@ -5,6 +5,8 @@ PGP Email Relay
 A simple SMTP relay that will encrypt any emails that it receives, and will relay
 the message via a remote SMTP server.
 
+The intended purpose of this project is to allow an application that sends automated emails to encrypt them before they reach the recipient, without modifying the source code of the application itself.
+
 Most of the SMTP code is based on [Go Guerrilla](https://github.com/flashmob/go-guerrilla) by Flashmob
 
 Public keys are downloaded from a keyserver (the keyserver URL is configurable). You can also place your own keys into the key cache folder, these will not be overwritten.
